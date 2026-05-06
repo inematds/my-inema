@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
 
 export default function Home() {
   return (
@@ -8,16 +9,10 @@ export default function Home() {
         IA que ensina, não responde por você. Tutor socrático para aprendizagem real.
       </p>
       <div className="flex gap-3">
-        <Link
-          href="/login"
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
-        >
+        <Link href="/login" className={buttonVariants()}>
           Entrar
         </Link>
-        <Link
-          href="/signup"
-          className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-accent"
-        >
+        <Link href="/signup" className={buttonVariants({ variant: "outline" })}>
           Criar conta
         </Link>
       </div>
