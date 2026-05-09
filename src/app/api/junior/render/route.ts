@@ -39,9 +39,12 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "no_scenes" }, { status: 400 });
   }
 
+  const withNarration = url.searchParams.get("narrate") === "1";
+
   try {
-    const { path: filePath, durationS } = await renderStorybook({
+    const { path: filePath, durationS, narrationsGenerated } = await renderStorybook({
       title: book.published_title ?? "Livro",
+      withNarration,
       scenes: scenes.map((s) => ({
         id: s.id,
         name: s.name,
@@ -51,7 +54,6 @@ export async function GET(req: Request) {
     });
 
     const data = await fs.readFile(filePath);
-    // Best effort cleanup; do not block response on failure.
     fs.unlink(filePath).catch(() => undefined);
 
     const safeName =
@@ -66,6 +68,7 @@ export async function GET(req: Request) {
         "Content-Type": "video/mp4",
         "Content-Disposition": `attachment; filename="${safeName}.mp4"`,
         "X-Render-Duration-S": durationS.toFixed(1),
+        "X-Narrations-Generated": String(narrationsGenerated),
         "Cache-Control": "private, max-age=300",
       },
     });

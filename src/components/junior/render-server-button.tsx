@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// Server-side Remotion render: requests /api/junior/render?bookId=...
-// Streams MP4 back. Long-running (~30-90s per scene); we show indeterminate
-// progress + elapsed time so user knows it's alive.
+// Server-side Remotion render: requests /api/junior/render?bookId=... .
+// Optional: narrate=1 ativa TTS via inemavox em cada cena (mais demorado).
 export function RenderServerButton({ bookId, title }: { bookId: string; title: string }) {
   const [busy, setBusy] = useState(false);
+  const [narrate, setNarrate] = useState(true);
   const [elapsed, setElapsed] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const tickRef = useRef<NodeJS.Timeout | null>(null);
@@ -28,7 +28,10 @@ export function RenderServerButton({ bookId, title }: { bookId: string; title: s
     }, 1000);
 
     try {
-      const r = await fetch(`/api/junior/render?bookId=${encodeURIComponent(bookId)}`);
+      const params = new URLSearchParams();
+      params.set("bookId", bookId);
+      if (narrate) params.set("narrate", "1");
+      const r = await fetch(`/api/junior/render?${params.toString()}`);
       if (!r.ok) {
         const j = await r.json().catch(() => ({}));
         setError(j.error ?? `HTTP ${r.status}`);
@@ -57,6 +60,15 @@ export function RenderServerButton({ bookId, title }: { bookId: string; title: s
 
   return (
     <div className="flex flex-col items-end gap-1">
+      <label className="body-serif italic text-[0.82rem] text-[var(--ink-faint)] flex items-center gap-2 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={narrate}
+          onChange={(e) => setNarrate(e.target.checked)}
+          disabled={busy}
+        />
+        com narração (TTS pt-BR)
+      </label>
       <button
         type="button"
         onClick={render}
@@ -78,8 +90,9 @@ export function RenderServerButton({ bookId, title }: { bookId: string; title: s
       )}
       {busy && (
         <p className="body-serif italic text-[0.78rem] text-[var(--ink-faint)] max-w-[300px] text-right leading-snug">
-          o servidor está montando frame por frame com o Remotion. costuma
-          levar de 30s a 5min dependendo do número de cenas.
+          {narrate
+            ? "gerando narração via inemavox + montando frames com Remotion. costuma levar 30s a 5min."
+            : "montando frames com Remotion. costuma levar 30s a 3min."}
         </p>
       )}
     </div>

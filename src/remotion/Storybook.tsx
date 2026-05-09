@@ -1,5 +1,6 @@
 import {
   AbsoluteFill,
+  Audio,
   Img,
   Sequence,
   interpolate,
@@ -15,6 +16,8 @@ export type StorybookScene = {
   epithet: string | null;
   // Either base64 (no prefix) OR a data URL.
   image_data: string | null;
+  // Optional data URL with narration MP3 (data:audio/mp3;base64,...).
+  audio_url?: string | null;
 };
 
 export type StorybookProps = {
@@ -22,9 +25,9 @@ export type StorybookProps = {
   scenes: StorybookScene[];
 };
 
-// 30fps · 5s per scene · cover at start.
+// 30fps · 7s per scene (gives room for narration) · cover at start.
 export const FPS = 30;
-export const SECONDS_PER_SCENE = 5;
+export const SECONDS_PER_SCENE = 7;
 export const COVER_SECONDS = 4;
 export const TRANSITION_FRAMES = 18;
 
@@ -138,6 +141,7 @@ function SceneFrame({ scene, index }: { scene: StorybookScene; index: number }) 
           "radial-gradient(ellipse 80% 60% at 50% 0%, #f6efe2 0%, #ece2cf 70%, #d9cdb3 100%)",
       }}
     >
+      {scene.audio_url && <Audio src={scene.audio_url} />}
       <AbsoluteFill style={{ opacity, padding: 0 }}>
         {/* Image slab */}
         <div
