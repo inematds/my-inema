@@ -9,12 +9,21 @@ import { Label } from "@/components/ui/label";
 
 type Mode = "login" | "signup";
 
+// Phase-1 simplified auth: kid types a username + password. We don't validate
+// emails. Internally we suffix the username with @andaime.local so Supabase's
+// email-based auth keeps working without surfacing email to the user. When we
+// reach Phase 2 (real schools / parental consent) we add proper email/SSO.
+const INTERNAL_DOMAIN = "andaime.local";
+
+function normalizeUsername(raw: string): string {
+  return raw.trim().toLowerCase().replace(/\s+/g, "");
+}
+
 export function AuthForm({ mode }: { mode: Mode }) {
   const router = useRouter();
   const supabase = createClient();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -23,62 +32,60 @@ export function AuthForm({ mode }: { mode: Mode }) {
     setError(null);
     setLoading(true);
 
+    const u = normalizeUsername(username);
+    if (u.length < 2) {
+      setError("Escolha um usuário com pelo menos 2 letras.");
+      setLoading(false);
+      return;
+    }
+    if (!/^[a-z0-9._-]+$/.test(u)) {
+      setError("Use só letras, números, ponto, hífen ou sublinhado.");
+      setLoading(false);
+      return;
+    }
+
+    const internalEmail = `${u}@${INTERNAL_DOMAIN}`;
+
     if (mode === "signup") {
       const { error } = await supabase.auth.signUp({
-        email,
+        email: internalEmail,
         password,
-        options: { data: { name } },
+        options: { data: { name: u, username: u } },
       });
       if (error) {
-        setError(error.message);
+        setError(translateError(error.message));
         setLoading(false);
         return;
       }
     } else {
       const { error } = await supabase.auth.signInWithPassword({
-        email,
+        email: internalEmail,
         password,
       });
       if (error) {
-        setError(error.message);
+        setError(translateError(error.message));
         setLoading(false);
         return;
       }
     }
 
-    router.push("/dashboard");
+    router.push("/junior");
     router.refresh();
-  }
-
-  async function handleGoogle() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/callback` },
-    });
-    if (error) setError(error.message);
   }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-sm">
-      {mode === "signup" && (
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="name">Nome</Label>
-          <Input
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
-      )}
       <div className="flex flex-col gap-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="username">Usuário</Label>
         <Input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          id="username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          autoComplete="username"
+          spellCheck={false}
+          autoCapitalize="none"
           required
+          placeholder="ex: bruno"
         />
       </div>
       <div className="flex flex-col gap-2">
@@ -86,9 +93,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
         <Input
           id="password"
           type="password"
-          minLength={8}
+          minLength={6}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          autoComplete={mode === "signup" ? "new-password" : "current-password"}
           required
         />
       </div>
@@ -96,9 +104,15 @@ export function AuthForm({ mode }: { mode: Mode }) {
       <Button type="submit" disabled={loading}>
         {loading ? "Aguarde..." : mode === "login" ? "Entrar" : "Criar conta"}
       </Button>
-      <Button type="button" variant="outline" onClick={handleGoogle}>
-        Continuar com Google
-      </Button>
     </form>
   );
+}
+
+function translateError(msg: string): string {
+  const m = msg.toLowerCase();
+  if (m.includes("invalid login")) return "Usuário ou senha errados.";
+  if (m.includes("already registered") || m.includes("user already"))
+    return "Esse usuário já existe. Tenta entrar?";
+  if (m.includes("password")) return "Senha precisa ter ao menos 6 caracteres.";
+  return msg;
 }

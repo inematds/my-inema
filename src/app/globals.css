@@ -128,3 +128,108 @@
     @apply font-sans;
   }
 }
+
+/* ── Junior theme: storybook / illustrated children's book ─────────── */
+[data-theme="junior"] {
+  --paper: #f6efe2;
+  --paper-deep: #ece2cf;
+  --paper-edge: #d9cdb3;
+  --ink: #1d1916;
+  --ink-soft: #4a4338;
+  --ink-faint: #847a6a;
+  --magic: #0e544c;       /* deep teal — the "magic" color */
+  --magic-soft: #2a7a72;
+  --amber: #b96b2c;       /* warm accent for highlights */
+  --amber-soft: #d6953f;
+  --crimson: #7a2b21;     /* rare emphasis */
+  --paper-noise: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.12  0 0 0 0 0.10  0 0 0 0 0.07  0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+[data-theme="junior"] {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, var(--paper) 0%, var(--paper-deep) 70%, var(--paper-edge) 100%),
+    var(--paper);
+  color: var(--ink);
+}
+
+[data-theme="junior"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--paper-noise);
+  opacity: 0.55;
+  mix-blend-mode: multiply;
+  z-index: 0;
+}
+
+[data-theme="junior"] .display {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-feature-settings: "ss01", "ss02";
+  font-variation-settings: "opsz" 144, "SOFT" 50, "WONK" 1;
+  letter-spacing: -0.025em;
+  line-height: 0.95;
+}
+
+[data-theme="junior"] .display-italic {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-style: italic;
+  font-variation-settings: "opsz" 144, "SOFT" 80;
+}
+
+[data-theme="junior"] .body-serif {
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-optical-sizing: auto;
+}
+
+[data-theme="junior"] .ink {
+  color: var(--ink);
+}
+
+[data-theme="junior"] .magic-underline {
+  background: linear-gradient(180deg, transparent 60%, rgba(14, 84, 76, 0.18) 60%, rgba(14, 84, 76, 0.22) 95%, transparent 95%);
+  padding: 0 0.1em;
+}
+
+[data-theme="junior"] .paper-card {
+  background:
+    radial-gradient(ellipse at 30% 0%, rgba(255, 255, 255, 0.55) 0%, transparent 60%),
+    var(--paper);
+  border: 1px solid var(--paper-edge);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 1px 2px rgba(29, 25, 22, 0.04),
+    0 8px 32px -16px rgba(29, 25, 22, 0.18);
+}
+
+@keyframes draw-stroke {
+  from { stroke-dashoffset: var(--len, 1000); }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes paper-settle {
+  0%   { opacity: 0; transform: translateY(10px) rotate(var(--tilt, 0deg)); }
+  100% { opacity: 1; transform: translateY(0) rotate(var(--tilt, 0deg)); }
+}
+
+@keyframes ink-bleed {
+  0%   { opacity: 0; filter: blur(8px) saturate(0.6); }
+  60%  { opacity: 1; filter: blur(0px) saturate(1.05); }
+  100% { opacity: 1; filter: blur(0) saturate(1); }
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.012); }
+}
+
+@keyframes film-fade {
+  0%   { opacity: 0; transform: scale(1.015); filter: blur(4px); }
+  100% { opacity: 1; transform: scale(1);     filter: blur(0); }
+}
+
+.animate-paper-settle { animation: paper-settle 800ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-ink-bleed { animation: ink-bleed 700ms ease-out both; }
+.animate-breathe { animation: breathe 6s ease-in-out infinite; }
+.animate-draw-stroke { stroke-dasharray: var(--len, 1000); animation: draw-stroke 1.2s ease-out 0.2s both; }
+.animate-film-fade { animation: film-fade 600ms ease-out both; }

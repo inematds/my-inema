@@ -16,8 +16,11 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen grid grid-rows-[auto_1fr] bg-background text-foreground">
       <header className="border-b px-6 py-3 flex items-center justify-between">
-        <Link href="/dashboard" className="font-semibold tracking-tight">
+        <Link href="/dashboard" className="font-semibold tracking-tight flex items-baseline gap-2">
           Andaime
+          <span className="text-xs font-normal text-muted-foreground">
+            v{process.env.NEXT_PUBLIC_APP_VERSION}
+          </span>
         </Link>
         <div className="flex items-center gap-3">
           <span className="text-sm text-muted-foreground">

@@ -8,7 +8,7 @@ import { getAnthropic, ANDAIME_MODEL } from "@/lib/ai/anthropic";
 export const runtime = "nodejs";
 
 const BodySchema = z.object({
-  attemptId: z.string().uuid(),
+  attemptId: z.guid(),
   content: z.string().min(1).max(5000),
 });
 

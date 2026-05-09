@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 export const runtime = "nodejs";
 
 const BodySchema = z.object({
-  assignmentId: z.string().uuid(),
+  assignmentId: z.guid(),
   initial: z.string().min(1).max(10000),
 });
 

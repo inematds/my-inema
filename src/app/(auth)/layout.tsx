@@ -7,6 +7,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         Andaime
       </Link>
       {children}
+      <span className="mt-8 text-xs text-muted-foreground">
+        v{process.env.NEXT_PUBLIC_APP_VERSION}
+      </span>
     </div>
   );
 }

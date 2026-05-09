@@ -237,6 +237,276 @@ export type Database = {
           },
         ]
       }
+      junior_books: {
+        Row: {
+          created_at: string
+          id: string
+          lesson_type: string
+          published_at: string | null
+          published_title: string | null
+          session_token: string
+          title: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lesson_type?: string
+          published_at?: string | null
+          published_title?: string | null
+          session_token: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lesson_type?: string
+          published_at?: string | null
+          published_title?: string | null
+          session_token?: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      junior_characters: {
+        Row: {
+          book_id: string
+          created_at: string
+          description: string
+          epithet: string | null
+          id: string
+          image_data: string | null
+          name: string | null
+          position: number
+        }
+        Insert: {
+          book_id: string
+          created_at?: string
+          description: string
+          epithet?: string | null
+          id?: string
+          image_data?: string | null
+          name?: string | null
+          position?: number
+        }
+        Update: {
+          book_id?: string
+          created_at?: string
+          description?: string
+          epithet?: string | null
+          id?: string
+          image_data?: string | null
+          name?: string | null
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "junior_characters_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "junior_books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      junior_objects: {
+        Row: {
+          book_id: string
+          created_at: string
+          description: string
+          epithet: string | null
+          id: string
+          image_data: string | null
+          name: string | null
+          position: number
+        }
+        Insert: {
+          book_id: string
+          created_at?: string
+          description: string
+          epithet?: string | null
+          id?: string
+          image_data?: string | null
+          name?: string | null
+          position?: number
+        }
+        Update: {
+          book_id?: string
+          created_at?: string
+          description?: string
+          epithet?: string | null
+          id?: string
+          image_data?: string | null
+          name?: string | null
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "junior_objects_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "junior_books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      junior_scene_characters: {
+        Row: {
+          character_id: string
+          scene_id: string
+        }
+        Insert: {
+          character_id: string
+          scene_id: string
+        }
+        Update: {
+          character_id?: string
+          scene_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "junior_scene_characters_character_id_fkey"
+            columns: ["character_id"]
+            isOneToOne: false
+            referencedRelation: "junior_characters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "junior_scene_characters_scene_id_fkey"
+            columns: ["scene_id"]
+            isOneToOne: false
+            referencedRelation: "junior_scenes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      junior_scene_objects: {
+        Row: {
+          object_id: string
+          scene_id: string
+        }
+        Insert: {
+          object_id: string
+          scene_id: string
+        }
+        Update: {
+          object_id?: string
+          scene_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "junior_scene_objects_object_id_fkey"
+            columns: ["object_id"]
+            isOneToOne: false
+            referencedRelation: "junior_objects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "junior_scene_objects_scene_id_fkey"
+            columns: ["scene_id"]
+            isOneToOne: false
+            referencedRelation: "junior_scenes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      junior_scenes: {
+        Row: {
+          book_id: string
+          created_at: string
+          description: string
+          epithet: string | null
+          id: string
+          image_data: string | null
+          name: string | null
+          position: number
+          setting_id: string | null
+        }
+        Insert: {
+          book_id: string
+          created_at?: string
+          description: string
+          epithet?: string | null
+          id?: string
+          image_data?: string | null
+          name?: string | null
+          position?: number
+          setting_id?: string | null
+        }
+        Update: {
+          book_id?: string
+          created_at?: string
+          description?: string
+          epithet?: string | null
+          id?: string
+          image_data?: string | null
+          name?: string | null
+          position?: number
+          setting_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "junior_scenes_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "junior_books"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "junior_scenes_setting_id_fkey"
+            columns: ["setting_id"]
+            isOneToOne: false
+            referencedRelation: "junior_settings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      junior_settings: {
+        Row: {
+          book_id: string
+          created_at: string
+          description: string
+          epithet: string | null
+          id: string
+          image_data: string | null
+          name: string | null
+          position: number
+        }
+        Insert: {
+          book_id: string
+          created_at?: string
+          description: string
+          epithet?: string | null
+          id?: string
+          image_data?: string | null
+          name?: string | null
+          position?: number
+        }
+        Update: {
+          book_id?: string
+          created_at?: string
+          description?: string
+          epithet?: string | null
+          id?: string
+          image_data?: string | null
+          name?: string | null
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "junior_settings_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "junior_books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       schools: {
         Row: {
           created_at: string
@@ -476,4 +746,3 @@ export const Constants = {
     },
   },
 } as const
-
