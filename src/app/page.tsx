@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AppHeader } from "@/components/app-header";
+import { RoleUpgradeBlock } from "@/components/role-upgrade-block";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function Home() {
@@ -100,6 +101,8 @@ export default async function Home() {
             </p>
           </div>
         )}
+
+        {user && role === "student" && <RoleUpgradeBlock />}
       </div>
     </main>
   );

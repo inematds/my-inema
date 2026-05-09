@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { RoleUpgradeBlock } from "@/components/role-upgrade-block";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -138,6 +139,8 @@ export default async function DashboardPage() {
       >
         ver o mural do Andaime Junior →
       </Link>
+
+      <RoleUpgradeBlock />
     </div>
   );
 }
