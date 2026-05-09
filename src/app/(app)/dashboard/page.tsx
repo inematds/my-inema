@@ -21,12 +21,55 @@ export default async function DashboardPage() {
   const isTeacher = profile?.role === "teacher" || isParent;
 
   if (isTeacher) {
-    // Teacher / parent view: list classes (own).
+    // Teacher / parent view: list classes (own) with quick metrics per card.
     const { data: classes } = await supabase
       .from("classes")
       .select("id, name, code")
       .eq("teacher_id", user!.id)
       .order("created_at", { ascending: false });
+
+    const classIds = (classes ?? []).map((c) => c.id);
+    const [{ data: enrollAgg }, { data: assignAgg }, { data: pubBooks }] =
+      await Promise.all([
+        classIds.length
+          ? supabase
+              .from("enrollments")
+              .select("class_id")
+              .in("class_id", classIds)
+          : Promise.resolve({ data: [] }),
+        classIds.length
+          ? supabase
+              .from("assignments")
+              .select("id, class_id")
+              .in("class_id", classIds)
+          : Promise.resolve({ data: [] }),
+        classIds.length
+          ? supabase
+              .from("junior_books")
+              .select("attempt_id, attempts!inner(assignment_id, assignments!attempts_assignment_id_fkey!inner(class_id))")
+              .not("published_at", "is", null)
+          : Promise.resolve({ data: [] }),
+      ]);
+
+    const studentsByClass = new Map<string, number>();
+    for (const e of enrollAgg ?? []) {
+      studentsByClass.set(e.class_id, (studentsByClass.get(e.class_id) ?? 0) + 1);
+    }
+    const lessonsByClass = new Map<string, number>();
+    for (const a of assignAgg ?? []) {
+      lessonsByClass.set(a.class_id, (lessonsByClass.get(a.class_id) ?? 0) + 1);
+    }
+    const pubByClass = new Map<string, number>();
+    type BookAggRow = {
+      attempts: { assignment_id: string; assignments: { class_id: string } | { class_id: string }[] } | null;
+    };
+    for (const b of (pubBooks ?? []) as BookAggRow[]) {
+      const a = Array.isArray(b.attempts?.assignments)
+        ? b.attempts?.assignments[0]
+        : b.attempts?.assignments;
+      const cid = a?.class_id;
+      if (cid) pubByClass.set(cid, (pubByClass.get(cid) ?? 0) + 1);
+    }
 
     const groupLabel = isParent ? "Sua casa" : "Suas turmas";
     const newLabel = isParent ? "Novo grupo" : "Nova turma";
@@ -35,7 +78,7 @@ export default async function DashboardPage() {
       : "Você ainda não criou nenhuma turma. Comece criando uma.";
 
     return (
-      <div className="flex flex-col gap-6 max-w-3xl">
+      <div className="flex flex-col gap-6 max-w-4xl">
         <div className="flex items-center justify-between">
           <h1 className="display text-[clamp(2rem,4vw,3rem)] tracking-tight">
             {groupLabel}
@@ -47,19 +90,35 @@ export default async function DashboardPage() {
         {(classes?.length ?? 0) === 0 ? (
           <p className="text-muted-foreground italic body-serif">{emptyText}</p>
         ) : (
-          <div className="grid gap-3">
-            {classes?.map((c) => (
-              <Link key={c.id} href={`/teacher/classes/${c.id}`}>
-                <Card className="hover:bg-accent/30 transition">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>{c.name}</CardTitle>
-                      <Badge variant="outline">código: {c.code}</Badge>
-                    </div>
-                  </CardHeader>
-                </Card>
-              </Link>
-            ))}
+          <div className="grid gap-3 sm:grid-cols-2">
+            {classes?.map((c) => {
+              const students = studentsByClass.get(c.id) ?? 0;
+              const lessons = lessonsByClass.get(c.id) ?? 0;
+              const pubs = pubByClass.get(c.id) ?? 0;
+              return (
+                <Link
+                  key={c.id}
+                  href={`/teacher/classes/${c.id}`}
+                  className="rounded-[18px] border-2 p-4 transition-all hover:translate-y-[-1px]"
+                  style={{
+                    background: "var(--paper)",
+                    borderColor: "var(--paper-edge)",
+                  }}
+                >
+                  <div className="flex items-baseline justify-between gap-2 mb-2">
+                    <span className="display tracking-tight text-[1.15rem]">
+                      {c.name}
+                    </span>
+                    <Badge variant="outline">{c.code}</Badge>
+                  </div>
+                  <div className="flex gap-4 mt-2 body-serif">
+                    <Stat n={students} label={students === 1 ? "aluno" : "alunos"} />
+                    <Stat n={lessons} label={lessons === 1 ? "aula" : "aulas"} />
+                    <Stat n={pubs} label="publicado" tone="magic" />
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>
@@ -141,6 +200,31 @@ export default async function DashboardPage() {
       </Link>
 
       <RoleUpgradeBlock />
+    </div>
+  );
+}
+
+function Stat({
+  n,
+  label,
+  tone = "ink",
+}: {
+  n: number;
+  label: string;
+  tone?: "ink" | "magic";
+}) {
+  const c = tone === "magic" ? "var(--magic)" : "var(--ink)";
+  return (
+    <div className="flex items-baseline gap-1">
+      <span
+        className="display tabular-nums text-[1.05rem] leading-none"
+        style={{ color: c }}
+      >
+        {n}
+      </span>
+      <span className="body-serif italic text-[0.78rem] text-[var(--ink-faint)]">
+        {label}
+      </span>
     </div>
   );
 }

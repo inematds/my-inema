@@ -81,6 +81,45 @@ export type Database = {
           },
         ]
       }
+      attempt_feedback: {
+        Row: {
+          attempt_id: string
+          body: string
+          created_at: string
+          teacher_id: string
+          updated_at: string
+        }
+        Insert: {
+          attempt_id: string
+          body: string
+          created_at?: string
+          teacher_id: string
+          updated_at?: string
+        }
+        Update: {
+          attempt_id?: string
+          body?: string
+          created_at?: string
+          teacher_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attempt_feedback_attempt_id_fkey"
+            columns: ["attempt_id"]
+            isOneToOne: true
+            referencedRelation: "attempts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attempt_feedback_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attempts: {
         Row: {
           assignment_id: string

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,12 @@ export function JoinClassForm() {
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Accept ?code=ANDA-XXXX from URL — used by invite links shared by the teacher.
+  useEffect(() => {
+    const c = new URLSearchParams(window.location.search).get("code");
+    if (c) setCode(c.trim().toUpperCase());
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

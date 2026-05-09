@@ -11,6 +11,7 @@ type Publication = {
   lesson_type: string;
   title: string | null;
   published_at: string;
+  teacher_feedback?: string | null;
   scenes: {
     id: string;
     name: string | null;
@@ -84,6 +85,17 @@ export function MuralReader({ id }: { id: string }) {
       </header>
 
       <PanelFilm scenes={scenes} readOnly />
+
+      {pub.teacher_feedback && (
+        <div className="paper-card rounded-[18px] p-5 max-w-[860px] mx-auto w-full flex flex-col gap-2">
+          <p className="body-serif italic text-[0.78rem] tracking-wide text-[var(--ink-faint)]">
+            recado do professor
+          </p>
+          <p className="body-serif text-[1rem] text-[var(--ink)] leading-snug whitespace-pre-wrap">
+            {pub.teacher_feedback}
+          </p>
+        </div>
+      )}
     </div>
   );
 }

@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { InviteBlock } from "@/components/teacher/invite-block";
+import { ClassActions } from "@/components/teacher/class-actions";
 
 type Params = { id: string };
 
@@ -67,13 +69,18 @@ export default async function TeacherClassPage({
             código de convite: <Badge variant="outline">{cls.code}</Badge>
           </p>
         </div>
-        <Link
-          href={`/teacher/classes/${cls.id}/assignments/new`}
-          className={buttonVariants()}
-        >
-          Nova tarefa
-        </Link>
+        <div className="flex items-center gap-2">
+          <ClassActions classId={cls.id} currentName={cls.name} />
+          <Link
+            href={`/teacher/classes/${cls.id}/assignments/new`}
+            className={buttonVariants()}
+          >
+            Nova tarefa
+          </Link>
+        </div>
       </div>
+
+      <InviteBlock code={cls.code} className={cls.name} />
 
       <div className="grid gap-6 md:grid-cols-[1.4fr_1fr]">
         <Card>

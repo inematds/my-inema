@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { TeacherJuniorReader } from "@/components/junior/teacher-junior-reader";
+import { FeedbackBlock } from "@/components/teacher/feedback-block";
 
 type Params = { attemptId: string };
 
@@ -70,14 +71,28 @@ export default async function TeacherJuniorPage({
     .eq("book_id", book.id)
     .order("position", { ascending: true });
 
+  const { data: feedback } = await service
+    .from("attempt_feedback")
+    .select("body")
+    .eq("attempt_id", attemptId)
+    .maybeSingle();
+
   return (
-    <TeacherJuniorReader
-      assignmentTitle={arow.title}
-      className={cls.name}
-      studentName={studentProfile?.name ?? "aluno"}
-      attemptStatus={attempt.status}
-      book={book}
-      scenes={scenes ?? []}
-    />
+    <>
+      <TeacherJuniorReader
+        assignmentTitle={arow.title}
+        className={cls.name}
+        studentName={studentProfile?.name ?? "aluno"}
+        attemptStatus={attempt.status}
+        book={book}
+        scenes={scenes ?? []}
+      />
+      <div className="max-w-[860px] mx-auto px-6 lg:px-10 mt-6">
+        <FeedbackBlock
+          attemptId={attemptId}
+          initialBody={feedback?.body ?? null}
+        />
+      </div>
+    </>
   );
 }

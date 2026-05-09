@@ -16,7 +16,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
   const supabase = createServiceClient();
   const { data: book, error } = await supabase
     .from("junior_books")
-    .select("id, lesson_type, published_title, published_at")
+    .select("id, lesson_type, published_title, published_at, attempt_id")
     .eq("id", parsed.data.id)
     .not("published_at", "is", null)
     .maybeSingle();
@@ -33,6 +33,17 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
     .order("position", { ascending: true })
     .order("created_at", { ascending: true });
 
+  // If this book is tied to an attempt, surface the teacher's feedback.
+  let feedback: string | null = null;
+  if (book.attempt_id) {
+    const { data: fb } = await supabase
+      .from("attempt_feedback")
+      .select("body")
+      .eq("attempt_id", book.attempt_id)
+      .maybeSingle();
+    feedback = fb?.body ?? null;
+  }
+
   return NextResponse.json({
     publication: {
       id: book.id,
@@ -40,6 +51,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
       title: book.published_title,
       published_at: book.published_at,
       scenes: scenes ?? [],
+      teacher_feedback: feedback,
     },
   });
 }

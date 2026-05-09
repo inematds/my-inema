@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AssignmentMetrics } from "@/components/teacher/assignment-metrics";
 import { AttemptList } from "@/components/teacher/attempt-list";
+import { AssignmentActions } from "@/components/teacher/assignment-actions";
 
 type Params = { id: string };
 
@@ -92,6 +93,14 @@ export default async function TeacherAssignmentPage({
             ver mural da turma →
           </Link>
         )}
+        <div className="mt-3">
+          <AssignmentActions
+            assignmentId={assignment.id}
+            classId={assignment.class_id}
+            currentTitle={assignment.title}
+            currentPrompt={assignment.prompt}
+          />
+        </div>
       </div>
 
       <AssignmentMetrics
