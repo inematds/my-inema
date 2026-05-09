@@ -1,19 +1,22 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { MuralGrid } from "@/components/junior/mural-grid";
 
 export const metadata = {
   title: "Mural da aula · Andaime",
 };
 
+// Mural per-assignment is publicly readable (anyone can see what was published
+// to that aula's mural). We use the service-role client to read metadata
+// because anonymous visitors aren't enrolled and would hit RLS on assignments.
 export default async function AulaMuralPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const supabase = await createClient();
+  const supabase = createServiceClient();
 
   const { data: assignment } = await supabase
     .from("assignments")
