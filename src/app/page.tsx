@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button";
-import { UserChip } from "@/components/user-chip";
+import { AppHeader } from "@/components/app-header";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function Home() {
@@ -20,65 +19,70 @@ export default async function Home() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col bg-background text-foreground">
-      <header className="px-6 py-5 flex items-center justify-end">
-        <UserChip variant="plain" />
-      </header>
+    <main className="relative min-h-screen flex flex-col">
+      <AppHeader />
 
-      <div className="flex-1 flex flex-col items-center justify-center gap-10 p-8">
-        <div className="flex flex-col items-center gap-3">
-          <h1 className="text-4xl font-semibold tracking-tight">Andaime</h1>
-          <p className="max-w-prose text-center text-muted-foreground">
-            IA que ensina, não responde por você. Tutor socrático para
-            aprendizagem real.
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center gap-12 p-8 pb-24">
+        <div className="flex flex-col items-center gap-4 max-w-[58ch]">
+          <p className="body-serif italic text-[0.85rem] tracking-wide text-[var(--ink-faint)]">
+            ato 0 · escolha por onde começar
+          </p>
+          <h1 className="display text-[clamp(3rem,6vw,5rem)] leading-[0.95] text-[var(--ink)]">
+            Andaime
+          </h1>
+          <p className="body-serif text-[1.05rem] text-center text-[var(--ink-soft)] leading-[1.55]">
+            IA que ensina,{" "}
+            <span className="display-italic text-[var(--magic)]">
+              não responde por você.
+            </span>{" "}
+            Tutor socrático para aprendizagem real.
           </p>
         </div>
 
-        {/* Entradas no sistema */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-3xl">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 w-full max-w-4xl">
           <EntryCard
             href="/junior"
+            eyebrow="ateliê de livros"
             title="Andaime Junior"
-            subtitle="o ateliê de livros das crianças"
-            cta="ver mural"
+            subtitle="ver os livros que as crianças publicaram no mural"
+            cta="abrir o mural"
+            tone="magic"
           />
           <EntryCard
             href={user ? "/dashboard" : "/login"}
+            eyebrow={role === "teacher" ? "professor" : "aluno"}
             title={role === "teacher" ? "Suas turmas" : "Suas tarefas"}
-            subtitle="redação dissertativa com tutoria"
+            subtitle={
+              user
+                ? "turmas, aulas e trabalhos publicados"
+                : "entre pra ver suas turmas e aulas"
+            }
             cta={user ? "abrir" : "entrar"}
-            variant="outline"
           />
           <EntryCard
             href={user ? "/junior/criar" : "/login?next=/junior/criar"}
-            title="Criar livro"
+            eyebrow="começa do zero"
+            title="Criar um livro"
             subtitle={
               user
-                ? "começa um livro Junior agora"
-                : "precisa entrar — começa um livro Junior"
+                ? "personagens, objetos, cenas e o livro inteiro"
+                : "precisa entrar — depois cria"
             }
             cta={user ? "criar" : "entrar"}
-            variant="ghost"
+            tone="dashed"
           />
         </div>
 
-        {/* CTA conta */}
         {!user && (
-          <div className="flex flex-wrap items-center justify-center gap-3 mt-2">
-            <Link
-              href="/login"
-              className={buttonVariants({ variant: "default", size: "sm" })}
-            >
-              Entrar
-            </Link>
-            <Link
-              href="/signup"
-              className={buttonVariants({ variant: "outline", size: "sm" })}
-            >
-              Criar conta
-            </Link>
-            <p className="text-xs text-muted-foreground">
-              ou explora sem conta
+          <div className="flex flex-col items-center gap-2 mt-2">
+            <p className="body-serif italic text-[0.85rem] text-[var(--ink-faint)]">
+              ainda sem conta?{" "}
+              <Link
+                href="/signup"
+                className="text-[var(--magic)] hover:underline not-italic"
+              >
+                criar uma agora
+              </Link>
             </p>
           </div>
         )}
@@ -89,33 +93,50 @@ export default async function Home() {
 
 function EntryCard({
   href,
+  eyebrow,
   title,
   subtitle,
   cta,
-  variant = "default",
+  tone = "plain",
 }: {
   href: string;
+  eyebrow: string;
   title: string;
   subtitle: string;
   cta: string;
-  variant?: "default" | "outline" | "ghost";
+  tone?: "magic" | "plain" | "dashed";
 }) {
-  const ring =
-    variant === "default"
-      ? "border-primary/40 hover:border-primary"
-      : variant === "outline"
-        ? "border-border hover:border-foreground/40"
-        : "border-dashed border-border hover:border-foreground/30";
+  const border =
+    tone === "magic"
+      ? "border-[var(--magic)]/40 hover:border-[var(--magic)]"
+      : tone === "dashed"
+        ? "border-dashed border-[var(--paper-edge)] hover:border-[var(--ink-soft)]/40"
+        : "border-[var(--paper-edge)] hover:border-[var(--ink-soft)]/40";
+  const ctaColor = tone === "magic" ? "var(--magic)" : "var(--ink)";
   return (
     <Link
       href={href}
-      className={`flex flex-col gap-3 p-5 rounded-xl border-2 ${ring} bg-card hover:bg-accent/30 transition-all hover:translate-y-[-2px]`}
+      className={`flex flex-col gap-4 p-5 rounded-[18px] border-2 ${border} transition-all hover:translate-y-[-2px]`}
+      style={{
+        background: "var(--paper)",
+        boxShadow: "0 18px 36px -22px rgba(29,25,22,0.28)",
+      }}
     >
       <div>
-        <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
-        <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
+        <p className="body-serif italic text-[0.78rem] tracking-wide text-[var(--ink-faint)] mb-2">
+          {eyebrow}
+        </p>
+        <h2 className="display text-[1.4rem] leading-[1.05] text-[var(--ink)] tracking-tight">
+          {title}
+        </h2>
+        <p className="body-serif text-[0.95rem] text-[var(--ink-soft)] mt-2 leading-snug">
+          {subtitle}
+        </p>
       </div>
-      <span className="text-sm font-medium underline underline-offset-2 self-start">
+      <span
+        className="display-italic text-[1rem] self-start"
+        style={{ color: ctaColor }}
+      >
         {cta} →
       </span>
     </Link>

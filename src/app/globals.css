@@ -143,6 +143,27 @@
   --amber-soft: #d6953f;
   --crimson: #7a2b21;     /* rare emphasis */
   --paper-noise: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.12  0 0 0 0 0.10  0 0 0 0 0.07  0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+
+  /* Map shadcn tokens into the storybook palette so Cards/Inputs/Buttons
+     inherit the parchment look without editing each component. */
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--paper);
+  --card-foreground: var(--ink);
+  --popover: var(--paper);
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+  --secondary: var(--paper-deep);
+  --secondary-foreground: var(--ink);
+  --muted: var(--paper-deep);
+  --muted-foreground: var(--ink-faint);
+  --accent: var(--paper-deep);
+  --accent-foreground: var(--ink);
+  --destructive: var(--crimson);
+  --border: var(--paper-edge);
+  --input: var(--paper-edge);
+  --ring: var(--magic);
 }
 
 [data-theme="junior"] {

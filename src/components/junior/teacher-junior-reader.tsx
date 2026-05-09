@@ -44,7 +44,7 @@ export function TeacherJuniorReader({
   }));
 
   return (
-    <div data-theme="junior" className="-m-6 p-0">
+    <div className="-m-6 p-0">
       <div className="relative w-full max-w-[1200px] mx-auto px-6 lg:px-10 pb-16 pt-6">
         <header className="mb-6 flex flex-col gap-2">
           <Link

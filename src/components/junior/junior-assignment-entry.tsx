@@ -66,7 +66,7 @@ export function JuniorAssignmentEntry({
   }
 
   return (
-    <div data-theme="junior" className="-m-6 p-0">
+    <div className="-m-6 p-0">
       {prompt && prompt.trim().length > 0 && (
         <div className="px-8 pt-6">
           <p className="body-serif italic text-[0.85rem] tracking-wide text-[var(--ink-faint)]">

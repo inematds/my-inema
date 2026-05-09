@@ -39,7 +39,7 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${newsreader.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body data-theme="junior" className="min-h-full flex flex-col">{children}</body>
     </html>
   );
 }
