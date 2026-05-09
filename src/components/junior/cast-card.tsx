@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { JuniorItem } from "./workspace";
+import { useJuniorContext } from "./junior-context";
 
 export function CastCard({
   item,
@@ -16,6 +17,7 @@ export function CastCard({
 }) {
   const [deleting, setDeleting] = useState(false);
   const tilt = useStableTilt(item.id);
+  const { apiHeaders } = useJuniorContext();
 
   async function handleDelete() {
     if (deleting) return;
@@ -25,6 +27,7 @@ export function CastCard({
       const r = await fetch(endpointDelete, {
         method: "DELETE",
         credentials: "include",
+        headers: apiHeaders(),
       });
       if (r.ok) onDelete(item.id);
       else setDeleting(false);

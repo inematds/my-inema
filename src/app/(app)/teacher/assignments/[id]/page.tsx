@@ -20,7 +20,9 @@ export default async function TeacherAssignmentPage({
 
   const { data: assignment } = await supabase
     .from("assignments")
-    .select("id, title, prompt, criteria, class_id, classes!inner(teacher_id, name)")
+    .select(
+      "id, title, prompt, criteria, class_id, lesson_type, classes!inner(teacher_id, name)",
+    )
     .eq("id", id)
     .single();
   if (!assignment) notFound();
@@ -47,6 +49,17 @@ export default async function TeacherAssignmentPage({
         <h1 className="text-3xl font-semibold tracking-tight mt-1">
           {assignment.title}
         </h1>
+        <p className="text-xs text-muted-foreground mt-1">
+          tipo: {assignment.lesson_type === "junior_books" ? "Andaime Junior · Book" : "Redação dissertativa"}
+        </p>
+        {assignment.lesson_type === "junior_books" && (
+          <Link
+            href={`/aulas/${assignment.id}/mural`}
+            className="text-sm underline mt-1 inline-block"
+          >
+            ver mural da turma →
+          </Link>
+        )}
       </div>
 
       <Card>
@@ -83,7 +96,11 @@ export default async function TeacherAssignmentPage({
               return (
                 <Link
                   key={a.id}
-                  href={`/teacher/attempts/${a.id}`}
+                  href={
+                    assignment.lesson_type === "junior_books"
+                      ? `/teacher/junior/${a.id}`
+                      : `/teacher/attempts/${a.id}`
+                  }
                   className="rounded-md border p-3 hover:bg-accent/30 transition flex items-center justify-between gap-3"
                 >
                   <div>
@@ -92,7 +109,11 @@ export default async function TeacherAssignmentPage({
                   </div>
                   <div className="flex items-center gap-2">
                     {a.status === "submitted" ? (
-                      <Badge>autonomia {a.autonomy_score ?? "—"}</Badge>
+                      assignment.lesson_type === "junior_books" ? (
+                        <Badge>publicado</Badge>
+                      ) : (
+                        <Badge>autonomia {a.autonomy_score ?? "—"}</Badge>
+                      )
                     ) : (
                       <Badge variant="outline">em andamento</Badge>
                     )}

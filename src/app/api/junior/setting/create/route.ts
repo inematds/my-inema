@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getOrCreateBook } from "@/lib/junior/book";
+import { resolveBookOrError } from "@/lib/junior/book";
 import { createServiceClient } from "@/lib/supabase/service";
 import { illustrate } from "@/lib/junior/illustrate";
 
@@ -19,6 +19,10 @@ export async function POST(req: Request) {
   }
   const { description, seed } = parsed.data;
 
+  const bookOrErr = await resolveBookOrError(req);
+  if (bookOrErr instanceof NextResponse) return bookOrErr;
+  const book = bookOrErr;
+
   const outcome = await illustrate("setting", description, { seed });
   if (!outcome.ok) {
     const status =
@@ -30,7 +34,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: outcome.error.kind }, { status });
   }
   const result = outcome.result;
-  const book = await getOrCreateBook();
 
   const supabase = createServiceClient();
   const { data: maxRow } = await supabase

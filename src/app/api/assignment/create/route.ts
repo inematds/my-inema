@@ -7,16 +7,26 @@ export const runtime = "nodejs";
 const BodySchema = z.object({
   classId: z.guid(),
   title: z.string().min(5).max(200),
-  prompt: z.string().min(20).max(8000),
-  criteria: z.string().max(4000).nullable(),
-  maxHints: z.number().int().min(1).max(20),
-  minInitialChars: z.number().int().min(50).max(2000),
+  // Junior assignments have an optional briefing; essay enforces 20+.
+  prompt: z.string().max(8000).default(""),
+  criteria: z.string().max(4000).nullable().default(null),
+  maxHints: z.number().int().min(1).max(20).default(3),
+  minInitialChars: z.number().int().min(0).max(2000).default(200),
+  lessonType: z.enum(["essay", "junior_books"]).default("essay"),
 });
 
 export async function POST(req: Request) {
   const parsed = BodySchema.safeParse(await req.json());
   if (!parsed.success) {
     return NextResponse.json({ error: "invalid_body", detail: parsed.error.message }, { status: 400 });
+  }
+
+  // Per-type tightening: essays still need a real prompt.
+  if (parsed.data.lessonType === "essay" && parsed.data.prompt.trim().length < 20) {
+    return NextResponse.json(
+      { error: "invalid_body", detail: "essay prompt must be 20+ chars" },
+      { status: 400 },
+    );
   }
 
   const supabase = await createClient();
@@ -43,6 +53,7 @@ export async function POST(req: Request) {
       criteria: parsed.data.criteria,
       max_hints: parsed.data.maxHints,
       min_initial_chars: parsed.data.minInitialChars,
+      lesson_type: parsed.data.lessonType,
     })
     .select("id")
     .single();

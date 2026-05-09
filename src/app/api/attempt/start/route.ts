@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { getOrCreateBookForAttempt } from "@/lib/junior/book";
 
 export const runtime = "nodejs";
 
+// Junior assignments don't need an initial draft — the kid's first character
+// is the start of the work. Essay assignments still require a written start.
 const BodySchema = z.object({
   assignmentId: z.guid(),
-  initial: z.string().min(1).max(10000),
+  initial: z.string().max(10000).optional().default(""),
 });
 
 export async function POST(req: Request) {
@@ -24,21 +27,50 @@ export async function POST(req: Request) {
 
   const { data: assignment } = await supabase
     .from("assignments")
-    .select("id, min_initial_chars")
+    .select("id, min_initial_chars, lesson_type, class_id")
     .eq("id", assignmentId)
     .single();
   if (!assignment) {
     return NextResponse.json({ error: "assignment_not_found" }, { status: 404 });
   }
-  if (initial.trim().length < assignment.min_initial_chars) {
-    return NextResponse.json(
-      {
-        error: "initial_too_short",
-        required: assignment.min_initial_chars,
-        got: initial.trim().length,
-      },
-      { status: 400 },
-    );
+
+  // Verify enrollment.
+  const { data: enrolled } = await supabase
+    .from("enrollments")
+    .select("class_id")
+    .eq("class_id", assignment.class_id)
+    .eq("student_id", user.id)
+    .maybeSingle();
+  if (!enrolled) {
+    return NextResponse.json({ error: "not_enrolled" }, { status: 403 });
+  }
+
+  // Reuse existing attempt if any (UNIQUE on assignment_id + student_id).
+  const { data: existing } = await supabase
+    .from("attempts")
+    .select("id")
+    .eq("assignment_id", assignmentId)
+    .eq("student_id", user.id)
+    .maybeSingle();
+  if (existing) {
+    if (assignment.lesson_type === "junior_books") {
+      await getOrCreateBookForAttempt(existing.id, user.id);
+    }
+    return NextResponse.json({ attemptId: existing.id });
+  }
+
+  // Essay path enforces a meaningful initial draft.
+  if (assignment.lesson_type === "essay") {
+    if (initial.trim().length < assignment.min_initial_chars) {
+      return NextResponse.json(
+        {
+          error: "initial_too_short",
+          required: assignment.min_initial_chars,
+          got: initial.trim().length,
+        },
+        { status: 400 },
+      );
+    }
   }
 
   const { data: attempt, error } = await supabase
@@ -58,18 +90,26 @@ export async function POST(req: Request) {
     );
   }
 
-  await supabase.from("turns").insert({
-    attempt_id: attempt.id,
-    author: "student",
-    kind: "initial",
-    content: initial,
-  });
+  if (assignment.lesson_type === "essay") {
+    await supabase.from("turns").insert({
+      attempt_id: attempt.id,
+      author: "student",
+      kind: "initial",
+      content: initial,
+    });
+  } else if (assignment.lesson_type === "junior_books") {
+    // Pre-create the bound junior_book so the workspace state is ready.
+    await getOrCreateBookForAttempt(attempt.id, user.id);
+  }
 
   await supabase.from("event_log").insert({
     user_id: user.id,
     attempt_id: attempt.id,
     event_type: "attempt_started",
-    payload: { initial_chars: initial.length },
+    payload: {
+      lesson_type: assignment.lesson_type,
+      initial_chars: initial.length,
+    },
   });
 
   return NextResponse.json({ attemptId: attempt.id });

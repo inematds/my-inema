@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { JuniorScene } from "./workspace";
+import { useJuniorContext } from "./junior-context";
 
 const FRAME_MS = 6000; // ~6s por cena no autoplay
 
@@ -9,15 +10,20 @@ export function PanelFilm({
   scenes,
   publishedAt = null,
   publishedTitle = null,
+  publishedScope = "global",
+  attemptBound = false,
   onPublicationChange,
   readOnly = false,
 }: {
   scenes: JuniorScene[];
   publishedAt?: string | null;
   publishedTitle?: string | null;
+  publishedScope?: "class" | "global";
+  attemptBound?: boolean;
   onPublicationChange?: (p: {
     publishedAt: string | null;
     publishedTitle: string | null;
+    publishedScope?: "class" | "global";
   }) => void;
   readOnly?: boolean;
 }) {
@@ -254,6 +260,8 @@ export function PanelFilm({
         <PublishBlock
           publishedAt={publishedAt}
           publishedTitle={publishedTitle}
+          publishedScope={publishedScope}
+          attemptBound={attemptBound}
           onChange={onPublicationChange}
           suggestedTitle={ordered[0]?.name ?? "Meu livro"}
         />
@@ -265,18 +273,32 @@ export function PanelFilm({
 function PublishBlock({
   publishedAt,
   publishedTitle,
+  publishedScope,
+  attemptBound,
   onChange,
   suggestedTitle,
 }: {
   publishedAt: string | null;
   publishedTitle: string | null;
-  onChange: (p: { publishedAt: string | null; publishedTitle: string | null }) => void;
+  publishedScope: "class" | "global";
+  attemptBound: boolean;
+  onChange: (p: {
+    publishedAt: string | null;
+    publishedTitle: string | null;
+    publishedScope?: "class" | "global";
+  }) => void;
   suggestedTitle: string;
 }) {
   const [confirming, setConfirming] = useState(false);
   const [title, setTitle] = useState(suggestedTitle);
+  // Class scope only available when the book is tied to a classroom attempt.
+  // Default for attempt-bound books = class; standalone books = global.
+  const [scope, setScope] = useState<"class" | "global">(
+    attemptBound ? "class" : "global",
+  );
   const [busy, setBusy] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const { apiHeaders } = useJuniorContext();
 
   async function publish() {
     const t = title.trim();
@@ -286,8 +308,8 @@ function PublishBlock({
     try {
       const r = await fetch("/api/junior/publish", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: t }),
+        headers: apiHeaders(),
+        body: JSON.stringify({ title: t, scope }),
         credentials: "include",
       });
       const j = await r.json();
@@ -298,6 +320,7 @@ function PublishBlock({
       onChange({
         publishedAt: j.publication.published_at,
         publishedTitle: j.publication.published_title,
+        publishedScope: j.publication.published_scope,
       });
       setConfirming(false);
     } catch {
@@ -315,6 +338,7 @@ function PublishBlock({
       const r = await fetch("/api/junior/publish", {
         method: "DELETE",
         credentials: "include",
+        headers: apiHeaders(),
       });
       if (!r.ok) {
         setErrorMsg("Não consegui tirar do mural.");
@@ -339,7 +363,7 @@ function PublishBlock({
         style={{ borderColor: "var(--magic)" }}
       >
         <p className="display-italic text-[1.1rem] text-[var(--magic)] leading-[1.1]">
-          publicado no mural
+          publicado {publishedScope === "class" ? "no mural da turma" : "no mural geral"}
         </p>
         <p className="body-serif text-[0.95rem] text-[var(--ink-soft)] leading-snug">
           como <strong className="display not-italic">{publishedTitle}</strong> · {when}
@@ -409,6 +433,29 @@ function PublishBlock({
         placeholder="Meu livro"
         className="body-serif text-[1.05rem] text-center text-[var(--ink)] bg-transparent outline-none border-b-2 border-[var(--paper-edge)] focus:border-[var(--magic)] py-2 transition-colors disabled:opacity-60"
       />
+
+      {attemptBound && (
+        <fieldset className="flex flex-col gap-2 mt-2">
+          <legend className="body-serif italic text-[0.78rem] tracking-wide text-[var(--ink-faint)] text-center mb-1">
+            onde fica esse livro?
+          </legend>
+          <ScopeChoice
+            label="só na minha turma"
+            hint="seu professor e colegas da turma veem"
+            value="class"
+            current={scope}
+            onPick={setScope}
+          />
+          <ScopeChoice
+            label="no mural geral"
+            hint="qualquer pessoa que abrir o site vê"
+            value="global"
+            current={scope}
+            onPick={setScope}
+          />
+        </fieldset>
+      )}
+
       {errorMsg && (
         <p
           role="alert"
@@ -453,7 +500,58 @@ function messageFor(error: string | undefined): string {
       return "Crie pelo menos uma cena antes de publicar.";
     case "no_book":
       return "Não achei seu livro. Recarrega a página?";
+    case "auth_required":
+      return "Precisa entrar pra publicar.";
+    case "class_scope_requires_attempt":
+      return "Esse livro não está em uma aula — só pode ir pro mural geral.";
     default:
       return "Não consegui publicar. Tenta de novo?";
   }
+}
+
+function ScopeChoice({
+  label,
+  hint,
+  value,
+  current,
+  onPick,
+}: {
+  label: string;
+  hint: string;
+  value: "class" | "global";
+  current: "class" | "global";
+  onPick: (v: "class" | "global") => void;
+}) {
+  const selected = current === value;
+  return (
+    <button
+      type="button"
+      onClick={() => onPick(value)}
+      className="text-left rounded-[12px] px-4 py-2 transition-all"
+      style={{
+        background: selected ? "var(--paper)" : "transparent",
+        border: `1px solid ${selected ? "var(--magic)" : "var(--paper-edge)"}`,
+        boxShadow: selected ? "0 0 0 3px rgba(14, 84, 76, 0.12)" : "none",
+      }}
+    >
+      <div className="flex items-baseline gap-2">
+        <span
+          className="size-3 rounded-full shrink-0"
+          style={{
+            background: selected ? "var(--magic)" : "transparent",
+            border: `1px solid ${selected ? "var(--magic)" : "var(--paper-edge)"}`,
+          }}
+        />
+        <span
+          className="display text-[0.95rem] tracking-tight"
+          style={{ color: selected ? "var(--ink)" : "var(--ink-soft)" }}
+        >
+          {label}
+        </span>
+      </div>
+      <p className="body-serif italic text-[0.82rem] text-[var(--ink-faint)] mt-1 ml-5 leading-snug">
+        {hint}
+      </p>
+    </button>
+  );
 }

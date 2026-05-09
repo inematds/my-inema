@@ -9,20 +9,33 @@ type Publication = {
   lesson_type: string;
   title: string | null;
   published_at: string;
+  published_scope?: string;
+  assignment_title?: string | null;
   scene_count: number;
   cover_image_data: string | null;
 };
 
-export function MuralGrid() {
+export function MuralGrid({
+  assignmentId,
+  classId,
+}: {
+  assignmentId?: string;
+  classId?: string;
+} = {}) {
   const [items, setItems] = useState<Publication[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/mural", { credentials: "include" })
+    const params = new URLSearchParams();
+    if (assignmentId) params.set("assignmentId", assignmentId);
+    if (classId) params.set("classId", classId);
+    const qs = params.toString();
+    const url = qs ? `/api/mural?${qs}` : "/api/mural";
+    fetch(url, { credentials: "include" })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
       .then((d: { publications: Publication[] }) => setItems(d.publications))
       .catch((e) => setError(e.message));
-  }, []);
+  }, [assignmentId, classId]);
 
   if (error) {
     return (

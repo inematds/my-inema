@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
-import { getOrCreateBook } from "@/lib/junior/book";
+import { resolveBookOrError } from "@/lib/junior/book";
 import { createServiceClient } from "@/lib/supabase/service";
 
 export const runtime = "nodejs";
 
-export async function GET() {
-  const book = await getOrCreateBook();
+export async function GET(req: Request) {
+  const bookOrErr = await resolveBookOrError(req);
+  if (bookOrErr instanceof NextResponse) return bookOrErr;
+  const book = bookOrErr;
   const supabase = createServiceClient();
 
   const [
@@ -76,6 +78,8 @@ export async function GET() {
       lessonType: book.lesson_type,
       publishedAt: book.published_at,
       publishedTitle: book.published_title,
+      publishedScope: book.published_scope,
+      attemptId: book.attempt_id,
     },
     characters: characters ?? [],
     settings: settings ?? [],

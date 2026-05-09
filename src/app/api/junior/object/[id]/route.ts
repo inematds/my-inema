@@ -7,13 +7,13 @@ export const runtime = "nodejs";
 
 const ParamsSchema = z.object({ id: z.guid() });
 
-export async function DELETE(_req: Request, ctx: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: Request, ctx: { params: Promise<{ id: string }> }) {
   const params = await ctx.params;
   const parsed = ParamsSchema.safeParse(params);
   if (!parsed.success) {
     return NextResponse.json({ error: "invalid_id" }, { status: 400 });
   }
-  const book = await getBookOrNull();
+  const book = await getBookOrNull(req);
   if (!book) return NextResponse.json({ error: "no_book" }, { status: 404 });
 
   const supabase = createServiceClient();

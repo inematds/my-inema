@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { JuniorItem, JuniorScene } from "./workspace";
 import { CastCard } from "./cast-card";
+import { useJuniorContext } from "./junior-context";
 
 const MIN_CHARS = 30;
 
@@ -32,6 +33,7 @@ export function PanelScenes({
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const ctrlRef = useRef<AbortController | null>(null);
+  const { apiHeaders } = useJuniorContext();
 
   useEffect(() => () => ctrlRef.current?.abort(), []);
 
@@ -90,7 +92,7 @@ export function PanelScenes({
     try {
       const r = await fetch("/api/junior/scene/create", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: apiHeaders(),
         body: JSON.stringify({
           description: text,
           settingId,

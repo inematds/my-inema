@@ -123,6 +123,12 @@ export default async function DashboardPage() {
       <Link href="/student/join" className={buttonVariants({ variant: "outline" }) + " self-start"}>
         Entrar em outra turma
       </Link>
+      <Link
+        href="/junior"
+        className="text-sm text-muted-foreground hover:underline self-start mt-2"
+      >
+        ver o mural do Andaime Junior →
+      </Link>
     </div>
   );
 }

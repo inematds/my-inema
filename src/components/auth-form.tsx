@@ -69,7 +69,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
       }
     }
 
-    router.push("/junior");
+    const next = new URLSearchParams(window.location.search).get("next");
+    // Sanity: only allow same-origin paths to prevent open redirect.
+    const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+    router.push(safeNext);
     router.refresh();
   }
 

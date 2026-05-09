@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { JuniorItem } from "./workspace";
+import { useJuniorContext } from "./junior-context";
 
 const MIN_CHARS = 40;
 
@@ -85,6 +86,7 @@ export function IllustrationCreator({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const submittingRef = useRef<AbortController | null>(null);
   const taRef = useRef<HTMLTextAreaElement | null>(null);
+  const { apiHeaders } = useJuniorContext();
 
   useEffect(() => () => submittingRef.current?.abort(), []);
 
@@ -100,7 +102,7 @@ export function IllustrationCreator({
     try {
       const r = await fetch(endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: apiHeaders(),
         body: JSON.stringify({ description: text }),
         signal: ctrl.signal,
         credentials: "include",

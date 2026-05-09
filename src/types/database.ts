@@ -40,6 +40,7 @@ export type Database = {
           created_at: string
           criteria: string | null
           id: string
+          lesson_type: string
           max_hints: number
           min_initial_chars: number
           prompt: string
@@ -50,6 +51,7 @@ export type Database = {
           created_at?: string
           criteria?: string | null
           id?: string
+          lesson_type?: string
           max_hints?: number
           min_initial_chars?: number
           prompt: string
@@ -60,6 +62,7 @@ export type Database = {
           created_at?: string
           criteria?: string | null
           id?: string
+          lesson_type?: string
           max_hints?: number
           min_initial_chars?: number
           prompt?: string
@@ -239,39 +242,53 @@ export type Database = {
       }
       junior_books: {
         Row: {
+          attempt_id: string | null
           created_at: string
           id: string
           lesson_type: string
           published_at: string | null
+          published_scope: string
           published_title: string | null
-          session_token: string
+          session_token: string | null
           title: string | null
           updated_at: string
           user_id: string | null
         }
         Insert: {
+          attempt_id?: string | null
           created_at?: string
           id?: string
           lesson_type?: string
           published_at?: string | null
+          published_scope?: string
           published_title?: string | null
-          session_token: string
+          session_token?: string | null
           title?: string | null
           updated_at?: string
           user_id?: string | null
         }
         Update: {
+          attempt_id?: string | null
           created_at?: string
           id?: string
           lesson_type?: string
           published_at?: string | null
+          published_scope?: string
           published_title?: string | null
-          session_token?: string
+          session_token?: string | null
           title?: string | null
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "junior_books_attempt_id_fkey"
+            columns: ["attempt_id"]
+            isOneToOne: true
+            referencedRelation: "attempts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       junior_characters: {
         Row: {

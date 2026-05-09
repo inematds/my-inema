@@ -7,6 +7,7 @@ import { PanelSettings } from "./panel-settings";
 import { PanelScenes } from "./panel-scenes";
 import { PanelFilm } from "./panel-film";
 import { WorkspaceNav, type StageId } from "./workspace-nav";
+import { JuniorProvider } from "./junior-context";
 
 export type JuniorItem = {
   id: string;
@@ -32,6 +33,8 @@ export type BookState = {
     lessonType: string;
     publishedAt: string | null;
     publishedTitle: string | null;
+    publishedScope: "class" | "global" | string;
+    attemptId: string | null;
   };
   characters: JuniorItem[];
   objects: JuniorItem[];
@@ -48,17 +51,18 @@ const STAGES: { id: StageId; label: string; index: number }[] = [
   { id: "movies", label: "Filmes", index: 6 },
 ];
 
-export function Workspace() {
+export function Workspace({ attemptId = null }: { attemptId?: string | null } = {}) {
   const [state, setState] = useState<BookState | null>(null);
   const [stage, setStage] = useState<StageId>("characters");
   const [bootError, setBootError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/junior/book/state", { credentials: "include" })
+    const headers: HeadersInit = attemptId ? { "x-attempt-id": attemptId } : {};
+    fetch("/api/junior/book/state", { credentials: "include", headers })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
       .then((d: BookState) => setState(d))
       .catch((e) => setBootError(e.message));
-  }, []);
+  }, [attemptId]);
 
   if (bootError) {
     return (
@@ -138,11 +142,13 @@ export function Workspace() {
   function handlePublicationChange(p: {
     publishedAt: string | null;
     publishedTitle: string | null;
+    publishedScope?: "class" | "global";
   }) {
     setState((s) => (s ? { ...s, book: { ...s.book, ...p } } : s));
   }
 
   return (
+   <JuniorProvider attemptId={attemptId}>
     <div className="relative w-full max-w-[1200px] mx-auto px-6 lg:px-10 pb-16 pt-2">
       <WorkspaceNav
         stages={STAGES}
@@ -189,6 +195,10 @@ export function Workspace() {
             scenes={state.scenes}
             publishedAt={state.book.publishedAt}
             publishedTitle={state.book.publishedTitle}
+            publishedScope={
+              state.book.publishedScope === "class" ? "class" : "global"
+            }
+            attemptBound={Boolean(state.book.attemptId)}
             onPublicationChange={handlePublicationChange}
           />
         )}
@@ -209,5 +219,6 @@ export function Workspace() {
         )}
       </div>
     </div>
+   </JuniorProvider>
   );
 }
