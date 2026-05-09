@@ -13,6 +13,7 @@ type Publication = {
   assignment_title?: string | null;
   scene_count: number;
   cover_image_data: string | null;
+  featured?: boolean;
 };
 
 export function MuralGrid({
@@ -70,14 +71,24 @@ export function MuralGrid({
             href={`/mural/${p.id}`}
             className="block group transition-all hover:translate-y-[-2px]"
           >
-            <Cover imageData={p.cover_image_data} />
+            <Cover imageData={p.cover_image_data} featured={!!p.featured} />
             <div className="mt-3 px-1">
               <p className="display text-[1.1rem] leading-[1.05] text-[var(--ink)] tracking-tight line-clamp-2">
+                {p.featured && (
+                  <span aria-label="destaque" className="text-[var(--amber)] mr-1">
+                    ★
+                  </span>
+                )}
                 {p.title ?? "sem título"}
               </p>
               <p className="display-italic text-[0.78rem] text-[var(--ink-faint)] mt-1 leading-tight">
                 {lessonLabel(p.lesson_type)} · {p.scene_count}{" "}
                 {p.scene_count === 1 ? "cena" : "cenas"}
+                {p.featured && (
+                  <span className="text-[var(--amber)] ml-2">
+                    · destaque do professor
+                  </span>
+                )}
               </p>
             </div>
           </Link>
@@ -87,15 +98,22 @@ export function MuralGrid({
   );
 }
 
-function Cover({ imageData }: { imageData: string | null }) {
+function Cover({
+  imageData,
+  featured = false,
+}: {
+  imageData: string | null;
+  featured?: boolean;
+}) {
   const src = imageData ? `data:image/png;base64,${imageData}` : null;
   return (
     <div
       className="relative aspect-[3/4] rounded-[4px]"
       style={{
         background: "linear-gradient(180deg, #f4ead4 0%, #ead8b3 100%)",
-        boxShadow:
-          "0 1px 0 rgba(255,255,255,0.7) inset, 0 18px 36px -22px rgba(29,25,22,0.4), 0 4px 10px -4px rgba(29,25,22,0.18)",
+        boxShadow: featured
+          ? "0 0 0 3px var(--amber), 0 1px 0 rgba(255,255,255,0.7) inset, 0 18px 36px -22px rgba(185,107,44,0.45), 0 4px 10px -4px rgba(29,25,22,0.18)"
+          : "0 1px 0 rgba(255,255,255,0.7) inset, 0 18px 36px -22px rgba(29,25,22,0.4), 0 4px 10px -4px rgba(29,25,22,0.18)",
       }}
     >
       <div

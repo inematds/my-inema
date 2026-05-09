@@ -39,6 +39,7 @@ export type Database = {
           class_id: string
           created_at: string
           criteria: string | null
+          featured_attempt_id: string | null
           id: string
           lesson_type: string
           max_hints: number
@@ -50,6 +51,7 @@ export type Database = {
           class_id: string
           created_at?: string
           criteria?: string | null
+          featured_attempt_id?: string | null
           id?: string
           lesson_type?: string
           max_hints?: number
@@ -61,6 +63,7 @@ export type Database = {
           class_id?: string
           created_at?: string
           criteria?: string | null
+          featured_attempt_id?: string | null
           id?: string
           lesson_type?: string
           max_hints?: number

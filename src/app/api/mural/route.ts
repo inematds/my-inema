@@ -17,7 +17,7 @@ export async function GET(req: Request) {
   let query = supabase
     .from("junior_books")
     .select(
-      "id, lesson_type, published_title, published_at, published_scope, attempt_id, attempts(assignment_id, assignments(class_id, title)), junior_scenes(image_data, position)",
+      "id, lesson_type, published_title, published_at, published_scope, attempt_id, attempts(assignment_id, assignments!attempts_assignment_id_fkey(class_id, title, featured_attempt_id)), junior_scenes(image_data, position)",
     )
     .not("published_at", "is", null)
     .order("published_at", { ascending: false })
@@ -35,7 +35,8 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "fetch_failed", detail: error.message }, { status: 500 });
   }
 
-  type AttemptRel = { assignment_id: string; assignments: { class_id: string; title: string } | null } | null;
+  type AssignmentRel = { class_id: string; title: string; featured_attempt_id: string | null } | null;
+  type AttemptRel = { assignment_id: string; assignments: AssignmentRel } | null;
   type BookRow = {
     id: string;
     lesson_type: string;
@@ -58,6 +59,7 @@ export async function GET(req: Request) {
       (a, c) => a.position - c.position,
     );
     const cover = ordered[0]?.image_data ?? null;
+    const featuredId = b.attempts?.assignments?.featured_attempt_id ?? null;
     return {
       id: b.id,
       lesson_type: b.lesson_type,
@@ -67,7 +69,15 @@ export async function GET(req: Request) {
       assignment_title: b.attempts?.assignments?.title ?? null,
       scene_count: ordered.length,
       cover_image_data: cover,
+      featured: !!(b.attempt_id && featuredId && b.attempt_id === featuredId),
     };
+  });
+
+  // Featured first, then most recent.
+  publications.sort((a, c) => {
+    if (a.featured && !c.featured) return -1;
+    if (!a.featured && c.featured) return 1;
+    return 0;
   });
 
   return NextResponse.json({ publications });
