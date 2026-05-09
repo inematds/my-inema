@@ -6,6 +6,14 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_APP_VERSION: pkg.version,
   },
+  // Remotion has platform-specific native modules (compositor-*); excluding
+  // from server bundle so Node resolves at runtime via require().
+  serverExternalPackages: [
+    "@remotion/renderer",
+    "@remotion/bundler",
+    "@remotion/cli",
+    "remotion",
+  ],
 };
 
 export default nextConfig;

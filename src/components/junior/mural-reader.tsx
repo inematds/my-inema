@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PanelFilm } from "./panel-film";
 import { DownloadBookButton } from "./download-book-button";
 import { RenderMovieButton } from "./render-movie-button";
+import { RenderServerButton } from "./render-server-button";
 import type { JuniorScene } from "./workspace";
 import { lessonLabel } from "@/lib/junior/lesson-types";
 
@@ -95,6 +96,10 @@ export function MuralReader({ id }: { id: string }) {
             <RenderMovieButton
               title={pub.title ?? "Livro"}
               scenes={scenes}
+            />
+            <RenderServerButton
+              bookId={pub.id}
+              title={pub.title ?? "Livro"}
             />
           </div>
         </div>

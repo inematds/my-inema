@@ -9,6 +9,7 @@ import { PanelFilm } from "./panel-film";
 import { WorkspaceNav, type StageId } from "./workspace-nav";
 import { JuniorProvider } from "./junior-context";
 import { RenderMovieButton } from "./render-movie-button";
+import { RenderServerButton } from "./render-server-button";
 
 export type JuniorItem = {
   id: string;
@@ -212,17 +213,27 @@ export function Workspace({ attemptId = null }: { attemptId?: string | null } = 
               transforme em filme
             </h2>
             <p className="body-serif italic text-[0.95rem] text-[var(--ink-faint)] text-center max-w-[52ch] leading-snug">
-              gera um vídeo curto (cerca de 5 segundos por cena) com fade
-              entre as cenas. baixa em .webm pra compartilhar.
-              <br />
-              <span className="text-[0.85rem]">
-                voz e movimento mais elaborado virão na próxima fatia (Remotion).
-              </span>
+              duas opções: rápida (no navegador) ou alta qualidade (no
+              servidor com Remotion). a alta só fica disponível depois que
+              você publicar o livro no mural.
             </p>
-            <RenderMovieButton
-              title={state.book.publishedTitle ?? "Meu livro"}
-              scenes={state.scenes}
-            />
+            <div className="flex flex-col items-center gap-3 mt-2">
+              <RenderMovieButton
+                title={state.book.publishedTitle ?? state.book.title ?? "Meu livro"}
+                scenes={state.scenes}
+              />
+              {state.book.publishedAt ? (
+                <RenderServerButton
+                  bookId={state.book.id}
+                  title={state.book.publishedTitle ?? "Meu livro"}
+                />
+              ) : (
+                <p className="body-serif italic text-[0.82rem] text-[var(--ink-faint)] max-w-[48ch] text-center">
+                  publica o livro no Ato 5 pra liberar a render em alta
+                  qualidade (.mp4 com transições e ken-burns).
+                </p>
+              )}
+            </div>
           </div>
         )}
       </div>
