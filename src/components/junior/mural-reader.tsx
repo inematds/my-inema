@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { PanelFilm } from "./panel-film";
+import { DownloadBookButton } from "./download-book-button";
 import type { JuniorScene } from "./workspace";
 import { lessonLabel } from "@/lib/junior/lesson-types";
 
@@ -76,12 +77,20 @@ export function MuralReader({ id }: { id: string }) {
         >
           ← voltar pro mural
         </Link>
-        <h1 className="display text-[clamp(2rem,4vw,3.4rem)] leading-[0.95] text-[var(--ink)]">
-          {pub.title ?? "sem título"}
-        </h1>
-        <p className="body-serif italic text-[0.9rem] text-[var(--ink-faint)]">
-          {lessonLabel(pub.lesson_type)} · publicado em {when}
-        </p>
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div className="flex flex-col gap-1">
+            <h1 className="display text-[clamp(2rem,4vw,3.4rem)] leading-[0.95] text-[var(--ink)]">
+              {pub.title ?? "sem título"}
+            </h1>
+            <p className="body-serif italic text-[0.9rem] text-[var(--ink-faint)]">
+              {lessonLabel(pub.lesson_type)} · publicado em {when}
+            </p>
+          </div>
+          <DownloadBookButton
+            title={pub.title ?? "Livro"}
+            scenes={pub.scenes}
+          />
+        </div>
       </header>
 
       <PanelFilm scenes={scenes} readOnly />

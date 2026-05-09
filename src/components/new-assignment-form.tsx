@@ -19,6 +19,32 @@ export function NewAssignmentForm({ classId }: { classId: string }) {
   const [minInitialChars, setMinInitialChars] = useState(200);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
+
+  async function suggest() {
+    if (suggesting) return;
+    setSuggesting(true);
+    setError(null);
+    try {
+      const r = await fetch("/api/assignment/suggest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ lessonType, hint: title.trim() }),
+      });
+      const j = await r.json();
+      if (!r.ok) {
+        setError(j.error ?? "Não consegui sugerir.");
+        return;
+      }
+      if (j.title) setTitle(j.title);
+      if (j.prompt) setPrompt(j.prompt);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSuggesting(false);
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -78,7 +104,22 @@ export function NewAssignmentForm({ classId }: { classId: string }) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="title">Título</Label>
+        <div className="flex items-center justify-between gap-2">
+          <Label htmlFor="title">Título</Label>
+          <button
+            type="button"
+            onClick={suggest}
+            disabled={suggesting}
+            className="body-serif italic text-[0.82rem] px-3 py-1 rounded-full transition-all hover:translate-y-[-1px] disabled:opacity-50"
+            style={{
+              background: "transparent",
+              border: "1px solid var(--magic)",
+              color: "var(--magic)",
+            }}
+          >
+            {suggesting ? "pensando..." : "✨ me dá uma ideia"}
+          </button>
+        </div>
         <Input
           id="title"
           value={title}

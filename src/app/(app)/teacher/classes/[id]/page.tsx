@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { InviteBlock } from "@/components/teacher/invite-block";
 import { ClassActions } from "@/components/teacher/class-actions";
+import { BulkEnrollBlock } from "@/components/teacher/bulk-enroll-block";
 
 type Params = { id: string };
 
@@ -149,7 +150,7 @@ export default async function TeacherClassPage({
               Alunos <Badge variant="outline">{totalStudents}</Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-col gap-3">
             {totalStudents === 0 ? (
               <p className="text-sm italic text-muted-foreground">
                 Compartilhe o código <strong>{cls.code}</strong> para os alunos
@@ -173,6 +174,7 @@ export default async function TeacherClassPage({
                 })}
               </ul>
             )}
+            <BulkEnrollBlock classId={cls.id} />
           </CardContent>
         </Card>
       </div>

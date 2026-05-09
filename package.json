@@ -1,6 +1,6 @@
 {
   "name": "my-inema",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3020 -H 0.0.0.0",
@@ -20,6 +20,7 @@
     "ai": "^6.0.175",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "jspdf": "^4.2.1",
     "lucide-react": "^1.14.0",
     "next": "16.2.5",
     "react": "19.2.4",
