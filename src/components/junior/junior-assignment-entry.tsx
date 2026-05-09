@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Workspace } from "./workspace";
+import { ChatThread } from "@/components/chat-thread";
 
 // Bridge component for the classroom flow: starts/finds the attempt for this
 // junior_books assignment, then renders the Workspace bound to that attempt.
@@ -10,10 +11,12 @@ export function JuniorAssignmentEntry({
   assignmentId,
   title,
   prompt,
+  studentId,
 }: {
   assignmentId: string;
   title: string;
   prompt: string;
+  studentId: string;
 }) {
   const [attemptId, setAttemptId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -78,6 +81,9 @@ export function JuniorAssignmentEntry({
         </div>
       )}
       <Workspace attemptId={attemptId} />
+      <div className="px-8 pb-12 mt-6">
+        <ChatThread attemptId={attemptId} currentUserId={studentId} />
+      </div>
     </div>
   );
 }

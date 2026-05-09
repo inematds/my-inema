@@ -70,6 +70,24 @@ export async function PUT(req: Request, ctx: { params: Promise<{ id: string }> }
     );
   if (error)
     return NextResponse.json({ error: "save_failed", detail: error.message }, { status: 500 });
+
+  // Notify the student.
+  const { data: at } = await service
+    .from("attempts")
+    .select("student_id")
+    .eq("id", params.data.id)
+    .single();
+  if (at?.student_id) {
+    await service.from("notifications").insert({
+      user_id: at.student_id,
+      kind: "book_feedback",
+      payload: {
+        attempt_id: params.data.id,
+        excerpt: body.data.body.trim().slice(0, 120),
+      },
+    });
+  }
+
   return NextResponse.json({ ok: true });
 }
 

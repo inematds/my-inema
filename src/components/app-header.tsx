@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { UserChip } from "@/components/user-chip";
+import { NotificationsBellMaybe } from "@/components/notifications-bell-maybe";
 
 // Shared header for every page. Logo top-left → /. UserChip top-right.
 // Storybook aesthetic (cream/parchment) — uses junior theme tokens which are
@@ -18,6 +19,7 @@ export function AppHeader({ extra }: { extra?: React.ReactNode }) {
       </Link>
       <nav className="flex items-baseline gap-5">
         {extra}
+        <NotificationsBellMaybe />
         <UserChip />
         <span className="body-serif text-[0.72rem] tracking-[0.18em] uppercase text-[var(--ink-faint)]">
           v{process.env.NEXT_PUBLIC_APP_VERSION}

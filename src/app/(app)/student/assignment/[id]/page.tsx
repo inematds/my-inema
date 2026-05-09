@@ -33,7 +33,31 @@ export default async function AssignmentPage({
         assignmentId={assignment.id}
         title={assignment.title}
         prompt={assignment.prompt}
+        studentId={user.id}
       />
+    );
+  }
+
+  // Math/Manim placeholder — vertical em desenvolvimento.
+  if (assignment.lesson_type === "math_manim") {
+    return (
+      <div className="flex flex-col items-center gap-3 py-16 max-w-2xl mx-auto">
+        <p className="body-serif italic text-[0.85rem] tracking-wide text-[var(--ink-faint)]">
+          tarefa de matemática · {assignment.title}
+        </p>
+        <h2 className="display text-[clamp(1.6rem,3vw,2.4rem)] leading-[1.05] text-[var(--ink)] text-center">
+          em desenvolvimento
+        </h2>
+        <p className="body-serif italic text-[0.95rem] text-[var(--ink-faint)] text-center max-w-[52ch] leading-snug">
+          Math via Manim ainda não está pronto. Quando ficar, o aluno
+          resolverá problemas com animações geradas por IA. Volte em breve.
+        </p>
+        {assignment.prompt && (
+          <p className="body-serif text-[0.95rem] text-[var(--ink-soft)] text-center max-w-[52ch] mt-4">
+            briefing: {assignment.prompt}
+          </p>
+        )}
+      </div>
     );
   }
 

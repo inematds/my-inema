@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { PanelFilm } from "./panel-film";
 import { DownloadBookButton } from "./download-book-button";
+import { RenderMovieButton } from "./render-movie-button";
 import type { JuniorScene } from "./workspace";
 import { lessonLabel } from "@/lib/junior/lesson-types";
 
@@ -86,10 +87,16 @@ export function MuralReader({ id }: { id: string }) {
               {lessonLabel(pub.lesson_type)} · publicado em {when}
             </p>
           </div>
-          <DownloadBookButton
-            title={pub.title ?? "Livro"}
-            scenes={pub.scenes}
-          />
+          <div className="flex flex-col items-end gap-2">
+            <DownloadBookButton
+              title={pub.title ?? "Livro"}
+              scenes={pub.scenes}
+            />
+            <RenderMovieButton
+              title={pub.title ?? "Livro"}
+              scenes={scenes}
+            />
+          </div>
         </div>
       </header>
 

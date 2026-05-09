@@ -8,6 +8,7 @@ import { PanelScenes } from "./panel-scenes";
 import { PanelFilm } from "./panel-film";
 import { WorkspaceNav, type StageId } from "./workspace-nav";
 import { JuniorProvider } from "./junior-context";
+import { RenderMovieButton } from "./render-movie-button";
 
 export type JuniorItem = {
   id: string;
@@ -102,8 +103,8 @@ export function Workspace({ attemptId = null }: { attemptId?: string | null } = 
       hint: "destrava com pelo menos uma cena",
     },
     movies: {
-      locked: true,
-      hint: "em desenvolvimento",
+      locked: sceneCount === 0,
+      hint: "destrava com pelo menos uma cena",
     },
   };
 
@@ -202,19 +203,26 @@ export function Workspace({ attemptId = null }: { attemptId?: string | null } = 
             onPublicationChange={handlePublicationChange}
           />
         )}
-        {stage === "movies" && (
-          <div className="flex flex-col items-center gap-3 py-16">
+        {stage === "movies" && !stageLocked.movies.locked && (
+          <div className="flex flex-col items-center gap-4 py-12 max-w-[640px] mx-auto">
             <p className="body-serif italic text-[0.85rem] tracking-wide text-[var(--ink-faint)]">
               ato 6 · filmes
             </p>
             <h2 className="display text-[clamp(1.6rem,3vw,2.4rem)] leading-[1.05] text-[var(--ink)] text-center">
-              em desenvolvimento
+              transforme em filme
             </h2>
             <p className="body-serif italic text-[0.95rem] text-[var(--ink-faint)] text-center max-w-[52ch] leading-snug">
-              aqui o livro vai virar filme animado, com voz e movimento. ainda
-              estamos preparando o ilustrador. enquanto isso, capricha no Ato
-              5 — quando os filmes chegarem, o livro vira o roteiro.
+              gera um vídeo curto (cerca de 5 segundos por cena) com fade
+              entre as cenas. baixa em .webm pra compartilhar.
+              <br />
+              <span className="text-[0.85rem]">
+                voz e movimento mais elaborado virão na próxima fatia (Remotion).
+              </span>
             </p>
+            <RenderMovieButton
+              title={state.book.publishedTitle ?? "Meu livro"}
+              scenes={state.scenes}
+            />
           </div>
         )}
       </div>

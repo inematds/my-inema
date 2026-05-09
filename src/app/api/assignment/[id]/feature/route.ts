@@ -58,5 +58,22 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
   if (error) {
     return NextResponse.json({ error: "update_failed", detail: error.message }, { status: 500 });
   }
+
+  // Notify the student that their work is featured.
+  if (body.data.attemptId) {
+    const { data: at } = await supabase
+      .from("attempts")
+      .select("student_id")
+      .eq("id", body.data.attemptId)
+      .single();
+    if (at?.student_id) {
+      await supabase.from("notifications").insert({
+        user_id: at.student_id,
+        kind: "attempt_featured",
+        payload: { attempt_id: body.data.attemptId, assignment_id: params.data.id },
+      });
+    }
+  }
+
   return NextResponse.json({ ok: true, featured_attempt_id: body.data.attemptId });
 }

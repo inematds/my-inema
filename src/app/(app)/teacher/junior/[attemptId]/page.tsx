@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { TeacherJuniorReader } from "@/components/junior/teacher-junior-reader";
 import { FeedbackBlock } from "@/components/teacher/feedback-block";
+import { ChatThread } from "@/components/chat-thread";
 
 type Params = { attemptId: string };
 
@@ -87,11 +88,12 @@ export default async function TeacherJuniorPage({
         book={book}
         scenes={scenes ?? []}
       />
-      <div className="max-w-[860px] mx-auto px-6 lg:px-10 mt-6">
+      <div className="max-w-[860px] mx-auto px-6 lg:px-10 mt-6 flex flex-col gap-4">
         <FeedbackBlock
           attemptId={attemptId}
           initialBody={feedback?.body ?? null}
         />
+        <ChatThread attemptId={attemptId} currentUserId={user.id} />
       </div>
     </>
   );

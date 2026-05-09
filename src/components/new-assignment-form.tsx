@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-type LessonType = "essay" | "junior_books";
+type LessonType = "essay" | "junior_books" | "math_manim";
 
 export function NewAssignmentForm({ classId }: { classId: string }) {
   const router = useRouter();
@@ -85,7 +85,7 @@ export function NewAssignmentForm({ classId }: { classId: string }) {
       {/* Lesson type picker */}
       <div className="flex flex-col gap-2">
         <Label>Tipo de aula</Label>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <TypeCard
             current={lessonType}
             value="essay"
@@ -98,6 +98,13 @@ export function NewAssignmentForm({ classId }: { classId: string }) {
             value="junior_books"
             title="Andaime Junior · Book"
             desc="Aluno cria personagens, cenas e um livro animado. Sem chat."
+            onPick={setLessonType}
+          />
+          <TypeCard
+            current={lessonType}
+            value="math_manim"
+            title="Math · Manim 🔒"
+            desc="Matemática animada com Manim. Em desenvolvimento — vai aceitar criar mas o aluno verá só placeholder."
             onPick={setLessonType}
           />
         </div>

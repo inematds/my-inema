@@ -12,7 +12,7 @@ const BodySchema = z.object({
   criteria: z.string().max(4000).nullable().default(null),
   maxHints: z.number().int().min(1).max(20).default(3),
   minInitialChars: z.number().int().min(0).max(2000).default(200),
-  lessonType: z.enum(["essay", "junior_books"]).default("essay"),
+  lessonType: z.enum(["essay", "junior_books", "math_manim"]).default("essay"),
 });
 
 export async function POST(req: Request) {
@@ -60,6 +60,25 @@ export async function POST(req: Request) {
 
   if (error || !assignment) {
     return NextResponse.json({ error: "create_failed", detail: error?.message }, { status: 500 });
+  }
+
+  // Notify all enrolled students of the new assignment.
+  const { data: enrolled } = await supabase
+    .from("enrollments")
+    .select("student_id")
+    .eq("class_id", parsed.data.classId);
+  if (enrolled && enrolled.length > 0) {
+    await supabase.from("notifications").insert(
+      enrolled.map((e) => ({
+        user_id: e.student_id,
+        kind: "new_assignment",
+        payload: {
+          assignment_id: assignment.id,
+          title: parsed.data.title,
+          lesson_type: parsed.data.lessonType,
+        },
+      })),
+    );
   }
 
   return NextResponse.json({ assignmentId: assignment.id });

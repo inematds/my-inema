@@ -7,6 +7,16 @@ export const LESSON_TYPES = {
     label: "Book",
     tagline: "criar um livro animado com personagens, objetos, cenários e cenas",
   },
+  essay: {
+    slug: "essay",
+    label: "Redação",
+    tagline: "redação dissertativa com tutoria por chat",
+  },
+  math_manim: {
+    slug: "math_manim",
+    label: "Math",
+    tagline: "matemática animada via Manim — em desenvolvimento",
+  },
 } as const;
 
 export type LessonTypeSlug = keyof typeof LESSON_TYPES;

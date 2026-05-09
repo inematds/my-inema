@@ -52,12 +52,39 @@ export async function POST(req: Request) {
     );
   }
 
-  // If this book is tied to a classroom attempt, publishing closes the entrega.
+  // If this book is tied to a classroom attempt, publishing closes the entrega
+  // and notifies the teacher.
   if (book.attempt_id) {
     await supabase
       .from("attempts")
       .update({ status: "submitted", finished_at: new Date().toISOString() })
       .eq("id", book.attempt_id);
+    const { data: at } = await supabase
+      .from("attempts")
+      .select("student_id, assignments!inner(class_id, title, classes!inner(teacher_id))")
+      .eq("id", book.attempt_id)
+      .single();
+    type AssignmentRel = {
+      class_id: string;
+      title: string;
+      classes: { teacher_id: string } | { teacher_id: string }[];
+    };
+    const aa = (at as unknown as { assignments: AssignmentRel | AssignmentRel[] } | null)
+      ?.assignments;
+    const arow = Array.isArray(aa) ? aa[0] : aa;
+    const cls = Array.isArray(arow?.classes) ? arow?.classes[0] : arow?.classes;
+    if (cls?.teacher_id) {
+      await supabase.from("notifications").insert({
+        user_id: cls.teacher_id,
+        kind: "book_published",
+        payload: {
+          attempt_id: book.attempt_id,
+          assignment_title: arow?.title,
+          title: parsed.data.title.trim(),
+          scope: parsed.data.scope,
+        },
+      });
+    }
   }
 
   return NextResponse.json({ publication: data });
