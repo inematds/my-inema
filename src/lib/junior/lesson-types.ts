@@ -15,7 +15,7 @@ export const LESSON_TYPES = {
   math_manim: {
     slug: "math_manim",
     label: "Math",
-    tagline: "matemática animada via Manim — em desenvolvimento",
+    tagline: "matemática com tutor socrático — Manim animado virá depois",
   },
 } as const;
 

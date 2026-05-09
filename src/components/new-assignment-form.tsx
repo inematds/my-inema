@@ -60,7 +60,13 @@ export function NewAssignmentForm({ classId }: { classId: string }) {
       body.criteria = criteria.trim() || null;
       body.maxHints = maxHints;
       body.minInitialChars = minInitialChars;
+    } else if (lessonType === "math_manim") {
+      // Math: criteria is the expected answer (used by the auto-checker).
+      body.criteria = criteria.trim() || null;
+      body.maxHints = 3;
+      body.minInitialChars = 0;
     } else {
+      // junior_books
       body.criteria = null;
       body.maxHints = 3;
       body.minInitialChars = 0;
@@ -103,8 +109,8 @@ export function NewAssignmentForm({ classId }: { classId: string }) {
           <TypeCard
             current={lessonType}
             value="math_manim"
-            title="Math · Manim 🔒"
-            desc="Matemática animada com Manim. Em desenvolvimento — vai aceitar criar mas o aluno verá só placeholder."
+            title="Math · Manim"
+            desc="Aluno resolve um problema, mostra o raciocínio, recebe feedback socrático da IA. (animação Manim virá depois.)"
             onPick={setLessonType}
           />
         </div>
@@ -143,7 +149,11 @@ export function NewAssignmentForm({ classId }: { classId: string }) {
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="prompt">
-          {lessonType === "essay" ? "Enunciado" : "Briefing (opcional)"}
+          {lessonType === "essay"
+            ? "Enunciado"
+            : lessonType === "math_manim"
+              ? "Problema"
+              : "Briefing (opcional)"}
         </Label>
         <Textarea
           id="prompt"
@@ -153,12 +163,30 @@ export function NewAssignmentForm({ classId }: { classId: string }) {
           placeholder={
             lessonType === "essay"
               ? "Apresente uma tese sobre o impacto da IA na aprendizagem..."
-              : "Tema, dica, restrição que a turma toda vai usar. Pode deixar em branco."
+              : lessonType === "math_manim"
+                ? "ex: Resolva a equação 3x + 5 = 14. Mostre o passo-a-passo."
+                : "Tema, dica, restrição que a turma toda vai usar. Pode deixar em branco."
           }
-          required={lessonType === "essay"}
-          minLength={lessonType === "essay" ? 20 : undefined}
+          required={lessonType !== "junior_books"}
+          minLength={lessonType === "essay" ? 20 : lessonType === "math_manim" ? 10 : undefined}
         />
       </div>
+
+      {lessonType === "math_manim" && (
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="criteria">Resposta esperada</Label>
+          <Input
+            id="criteria"
+            value={criteria}
+            onChange={(e) => setCriteria(e.target.value)}
+            placeholder="ex: x = 3, ou 42, ou 3/4"
+            required
+          />
+          <p className="text-xs text-muted-foreground">
+            confidencial — só serve pra checagem automática. o aluno nunca vê.
+          </p>
+        </div>
+      )}
 
       {lessonType === "essay" && (
         <>
