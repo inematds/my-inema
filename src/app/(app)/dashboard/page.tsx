@@ -16,26 +16,35 @@ export default async function DashboardPage() {
     .eq("id", user!.id)
     .single();
 
-  if (profile?.role === "teacher") {
-    // Teacher view: list classes
+  const isParent = profile?.role === "parent";
+  const isTeacher = profile?.role === "teacher" || isParent;
+
+  if (isTeacher) {
+    // Teacher / parent view: list classes (own).
     const { data: classes } = await supabase
       .from("classes")
       .select("id, name, code")
       .eq("teacher_id", user!.id)
       .order("created_at", { ascending: false });
 
+    const groupLabel = isParent ? "Sua casa" : "Suas turmas";
+    const newLabel = isParent ? "Novo grupo" : "Nova turma";
+    const emptyText = isParent
+      ? "Crie um grupo pra cadastrar seus filhos e mandar tarefas pra eles."
+      : "Você ainda não criou nenhuma turma. Comece criando uma.";
+
     return (
       <div className="flex flex-col gap-6 max-w-3xl">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-semibold tracking-tight">Suas turmas</h1>
+          <h1 className="display text-[clamp(2rem,4vw,3rem)] tracking-tight">
+            {groupLabel}
+          </h1>
           <Link href="/teacher/classes/new" className={buttonVariants()}>
-            Nova turma
+            {newLabel}
           </Link>
         </div>
         {(classes?.length ?? 0) === 0 ? (
-          <p className="text-muted-foreground">
-            Você ainda não criou nenhuma turma. Comece criando uma.
-          </p>
+          <p className="text-muted-foreground italic body-serif">{emptyText}</p>
         ) : (
           <div className="grid gap-3">
             {classes?.map((c) => (

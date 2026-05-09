@@ -45,12 +45,15 @@ export async function POST(req: Request) {
     }
   }
 
-  if (profile?.role !== "teacher") {
+  // Promote student → teacher when first creating a class. Parents keep the
+  // 'parent' role (they're teacher-equivalent in capability but semantically
+  // distinct).
+  if (profile?.role === "student") {
     await supabase
       .from("users")
       .update({ role: "teacher", school_id: schoolId })
       .eq("id", user.id);
-  } else if (!profile.school_id) {
+  } else if (!profile?.school_id) {
     await supabase.from("users").update({ school_id: schoolId }).eq("id", user.id);
   }
 

@@ -631,7 +631,7 @@ export type Database = {
       is_enrolled: { Args: { target_class: string }; Returns: boolean }
     }
     Enums: {
-      user_role: "admin" | "teacher" | "student"
+      user_role: "admin" | "teacher" | "student" | "parent"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -762,7 +762,7 @@ export const Constants = {
   },
   public: {
     Enums: {
-      user_role: ["admin", "teacher", "student"],
+      user_role: ["admin", "teacher", "student", "parent"],
     },
   },
 } as const

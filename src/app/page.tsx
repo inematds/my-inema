@@ -8,7 +8,7 @@ export default async function Home() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  let role: "student" | "teacher" | "admin" | null = null;
+  let role: "student" | "teacher" | "admin" | "parent" | null = null;
   if (user) {
     const { data: profile } = await supabase
       .from("users")
@@ -50,11 +50,25 @@ export default async function Home() {
           />
           <EntryCard
             href={user ? "/dashboard" : "/login"}
-            eyebrow={role === "teacher" ? "professor" : "aluno"}
-            title={role === "teacher" ? "Suas turmas" : "Suas tarefas"}
+            eyebrow={
+              role === "parent"
+                ? "pai/mãe"
+                : role === "teacher"
+                  ? "professor"
+                  : "aluno"
+            }
+            title={
+              role === "parent"
+                ? "Sua casa"
+                : role === "teacher"
+                  ? "Suas turmas"
+                  : "Suas tarefas"
+            }
             subtitle={
               user
-                ? "turmas, aulas e trabalhos publicados"
+                ? role === "parent"
+                  ? "grupos da família e tarefas dos filhos"
+                  : "turmas, aulas e trabalhos publicados"
                 : "entre pra ver suas turmas e aulas"
             }
             cta={user ? "abrir" : "entrar"}
