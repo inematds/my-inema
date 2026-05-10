@@ -29,15 +29,31 @@ export default async function Home() {
             ato 0 · escolha por onde começar
           </p>
           <h1 className="display text-[clamp(3rem,6vw,5rem)] leading-[0.95] text-[var(--ink)]">
-            Andaime
+            Olá. Aqui é o Andaime.
           </h1>
           <p className="body-serif text-[1.05rem] text-center text-[var(--ink-soft)] leading-[1.55]">
             IA que ensina,{" "}
             <span className="display-italic text-[var(--magic)]">
               não responde por você.
             </span>{" "}
-            Tutor socrático para aprendizagem real.
+            Tutor socrático para aprendizagem real — a IA devolve perguntas em vez
+            de respostas, e mantém o trabalho cognitivo com o aluno.
           </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-4xl text-center">
+          <InfoBlock
+            label="Junior"
+            text="Crianças escrevem livros ilustrados — personagens, cenas e capa geradas a partir do texto delas."
+          />
+          <InfoBlock
+            label="Math"
+            text="Aluno tenta um problema; a IA faz perguntas de retomada e jamais entrega a resposta."
+          />
+          <InfoBlock
+            label="Filmes"
+            text="Os livros viram vídeos verticais com narração — prontos pra compartilhar."
+          />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 w-full max-w-4xl">
@@ -105,6 +121,21 @@ export default async function Home() {
         {user && role === "student" && <RoleUpgradeBlock />}
       </div>
     </main>
+  );
+}
+
+function InfoBlock({ label, text }: { label: string; text: string }) {
+  return (
+    <div className="flex flex-col gap-2 p-4 rounded-[14px] border border-[var(--paper-edge)]/60"
+      style={{ background: "var(--paper)" }}
+    >
+      <p className="display-italic text-[0.95rem] text-[var(--magic)]">
+        {label}
+      </p>
+      <p className="body-serif text-[0.88rem] text-[var(--ink-soft)] leading-snug">
+        {text}
+      </p>
+    </div>
   );
 }
 
